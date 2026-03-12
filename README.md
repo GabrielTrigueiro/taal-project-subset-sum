@@ -236,4 +236,3 @@ Após a execução, o programa exibe três blocos de análise:
 
 **Análise de Complexidade**
 - Complexidade teórica
-- Justificativa detalhada do comportamento do algoritmo
