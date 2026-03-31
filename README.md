@@ -1,6 +1,6 @@
 # Técnicas de Algoritmos — Subset Sum
 
-Projeto  que implementa e compara duas técnicas clássicas de resolução do problema **Soma de Subconjunto (Subset Sum)**: Backtracking e Branch and Bound. O objetivo é analisar o comportamento de cada método por meio de métricas de desempenho coletadas em tempo de execução.
+Projeto que implementa e compara quatro técnicas clássicas de resolução do problema **Soma de Subconjunto (Subset Sum)**: Backtracking, Branch and Bound, Programação Dinâmica e Estratégia Gulosa. O objetivo é analisar o comportamento de cada método por meio de métricas de desempenho coletadas em tempo de execução.
 
 ---
 
@@ -10,6 +10,8 @@ Projeto  que implementa e compara duas técnicas clássicas de resolução do pr
 - [Algoritmos de Solução](#algoritmos-de-solução)
   - [Backtracking](#backtracking)
   - [Branch and Bound](#branch-and-bound)
+  - [Programação Dinâmica](#programação-dinâmica)
+  - [Estratégia Gulosa](#estratégia-gulosa)
   - [Comparativo](#comparativo)
 - [Como Usar](#como-usar)
   - [Requisitos](#requisitos)
@@ -94,15 +96,65 @@ limite_superior = soma_atual + soma(elementos_restantes)
 
 ---
 
+### Programação Dinâmica
+
+A Programação Dinâmica constrói uma **tabela booleana `dp[i][s]`** onde cada célula indica se é possível atingir a soma `s` usando os primeiros `i` elementos.
+
+**Transição:**
+```
+dp[i][s] = dp[i-1][s]                            # não incluir elemento i
+           OR dp[i-1][s - nums[i-1]]  (se s ≥ nums[i-1])  # incluir elemento i
+```
+
+**Caso base:** `dp[i][0] = True` para todo `i` (subconjunto vazio tem soma 0).
+
+A solução é **reconstruída** percorrendo a tabela de trás para frente após o preenchimento.
+
+| | |
+|---|---|
+| **Complexidade de tempo** | O(n × T) — pseudopolinomial |
+| **Complexidade de espaço** | O(n × T) para reconstrução |
+| **Estrutura** | Tabela 2D preenchida de forma bottom-up |
+| **Garante solução ótima** | Sim — sempre encontra se existir |
+| **Observação** | Eficiente para T pequeno; cresce linearmente com o alvo |
+
+---
+
+### Estratégia Gulosa
+
+A Estratégia Gulosa ordena os elementos em **ordem decrescente** e, a cada passo, inclui o maior elemento que ainda cabe no valor restante.
+
+**Critério guloso:** "escolha sempre o maior elemento que não ultrapassa o restante".
+
+> ⚠️ **Atenção:** A Estratégia Gulosa **não garante** encontrar uma solução mesmo quando ela existe. É uma heurística que pode falhar em casos onde a solução exige priorizar elementos menores.
+
+**Exemplo de falha:**
+```
+Conjunto = {10, 7, 6, 5, 3},  Alvo = 11
+Guloso escolhe 10 (restante = 1) → nenhum elemento cabe → falha.
+Solução real: {6, 5} → 6 + 5 = 11  ✓
+```
+
+| | |
+|---|---|
+| **Complexidade** | O(n log n) — dominada pela ordenação |
+| **Estrutura** | Varredura linear após ordenação |
+| **Garante solução ótima** | Não — heurística sem garantia de completude |
+| **Melhor caso** | Elementos grandes encaixam diretamente no alvo |
+| **Pior caso** | Escolha gulosa bloqueia todos os caminhos válidos |
+
+---
+
 ### Comparativo
 
-| Critério | Backtracking | Branch and Bound |
-|---|---|---|
-| Estratégia | DFS recursivo | BFS com fila |
-| Uso de memória | Baixo (pilha de chamadas) | Mais alto (fila de estados) |
-| Velocidade — solução cedo | Rápido | Mais lento (explora por nível) |
-| Velocidade — poda eficiente | Bom | Excelente (limite superior preciso) |
-| Facilidade de implementação | Alta | Média |
+| Critério | Backtracking | Branch and Bound | Prog. Dinâmica | Est. Gulosa |
+|---|---|---|---|---|
+| Estratégia | DFS recursivo | BFS com fila | Tabela bottom-up | Ordenação + varredura |
+| Complexidade | O(2ⁿ) | O(2ⁿ) pior caso | O(n × T) | O(n log n) |
+| Uso de memória | Baixo (pilha) | Mais alto (fila) | O(n × T) — tabela | O(n) — ordenação |
+| Solução ótima garantida | Sim | Sim | Sim | Não |
+| Velocidade — instâncias pequenas | Rápido | Rápido | Médio | Muito rápido |
+| Velocidade — T grande | Pior caso exponencial | Pior caso exponencial | Cresce com T | Insensível a T |
 
 ---
 
@@ -133,7 +185,9 @@ Escolha: 1
 Método de resolução:
   1. Backtracking
   2. Branch and Bound
-Escolha: 1
+  3. Programação Dinâmica
+  4. Estratégia Gulosa
+Escolha: 3
 
 Tipo de entrada:
   1. Arquivo
@@ -188,12 +242,13 @@ Caminho do arquivo: examples/padrao.txt
 
 | Arquivo | n | T | O que demonstra |
 |---|---|---|---|
-| `padrao.txt` | 8 | 15 | Caso equilibrado para comparação base |
+| `padrao.txt` | 8 | 15 | Caso equilibrado para comparação base entre todos os algoritmos |
 | `solucao_imediata.txt` | 10 | 12 | Solução nos 2 primeiros elementos — **ponto forte do Backtracking** |
-| `sem_solucao.txt` | 12 | 79 | Alvo impossível (soma total = 78) — **pior caso para ambos** |
-| `poda_maxima.txt` | 10 | 5 | Elementos grandes, alvo pequeno — **máxima poda em ambos** |
+| `sem_solucao.txt` | 12 | 79 | Alvo impossível (soma total = 78) — **pior caso para Backtracking e B&B; DP confirma ausência; Greedy aceita tudo mas não fecha** |
+| `poda_maxima.txt` | 10 | 5 | Elementos grandes, alvo pequeno — **máxima poda em Backtracking e B&B; DP leve; Greedy rejeita tudo** |
 | `solucao_no_final.txt` | 10 | 9 | Solução apenas no último elemento — **ponto fraco do Backtracking** |
 | `fila_grande_bb.txt` | 15 | 30 | Muitos caminhos viáveis — **ponto fraco do Branch and Bound** |
+| `greedy_falha.txt` | 5 | 11 | Solução existe ({6,5}=11) mas **Greedy falha** ao escolher 10 primeiro — **demonstra limitação da heurística** |
 
 ---
 
@@ -201,38 +256,48 @@ Caminho do arquivo: examples/padrao.txt
 
 ```
 .
-├── main.py                     # Ponto de entrada e menu interativo
-├── io_handler.py               # Leitura e parsing de entrada (manual e arquivo)
-├── metrics.py                  # Exibição de resultados e métricas
+├── main.py                          # Ponto de entrada e menu interativo
+├── io_handler.py                    # Leitura e parsing de entrada (manual e arquivo)
+├── metrics.py                       # Exibição de resultados e métricas
 ├── algorithms/
-│   ├── __init__.py             # Marca o diretório como pacote Python
-│   ├── backtracking.py         # Implementação do Backtracking
-│   └── branch_bound.py         # Implementação do Branch and Bound
+│   ├── __init__.py                  # Marca o diretório como pacote Python
+│   ├── backtracking.py              # Implementação do Backtracking
+│   ├── branch_bound.py              # Implementação do Branch and Bound
+│   ├── dynamic_programming.py       # Implementação da Programação Dinâmica
+│   └── greedy.py                    # Implementação da Estratégia Gulosa
 └── examples/
     ├── padrao.txt
     ├── solucao_imediata.txt
     ├── sem_solucao.txt
     ├── poda_maxima.txt
     ├── solucao_no_final.txt
-    └── fila_grande_bb.txt
+    ├── fila_grande_bb.txt
+    └── greedy_falha.txt             # Caso onde o Greedy falha mas solução existe
 ```
 
 ---
 
 ## Métricas Geradas
 
-Após a execução, o programa exibe três blocos de análise:
+Após a execução, o programa exibe três blocos de análise. O conteúdo varia conforme o algoritmo escolhido:
 
 **Análise Comportamental**
-- Estados explorados — total de nós visitados na árvore
-- Estados podados — ramos descartados antes de expandir
-- Eficiência de poda — porcentagem de ramos eliminados
-- Profundidade máxima *(Backtracking)* ou Tamanho máximo da fila *(Branch and Bound)*
+
+| Métrica | Backtracking | Branch and Bound | Prog. Dinâmica | Est. Gulosa |
+|---|---|---|---|---|
+| Estados / células exploradas | ✓ nós visitados | ✓ estados processados | ✓ células computadas | ✓ elementos analisados |
+| Podas / rejeições | ✓ ramos eliminados | ✓ estados descartados | N/A | ✓ elementos rejeitados |
+| Eficiência de poda (%) | ✓ | ✓ | N/A | — |
+| Profundidade máxima | ✓ | — | — | — |
+| Tamanho máximo da fila | — | ✓ | — | — |
+| Tamanho da tabela DP | — | — | ✓ | — |
+| Elementos aceitos | — | — | — | ✓ |
 
 **Métricas de Qualidade**
-- Qualidade da solução — ótima (exata) ou sem solução
+- Qualidade da solução — ótima/exata (Backtracking, B&B, DP) ou aproximada/heurística (Greedy)
 - Tempo de execução em milissegundos
 - Pico de memória em KB
 
 **Análise de Complexidade**
 - Complexidade teórica
+- Observações específicas de cada método (pseudopolinomial para DP; sem garantia de completude para Greedy)

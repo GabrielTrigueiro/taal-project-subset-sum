@@ -1,5 +1,7 @@
 from algorithms.backtracking import backtracking
 from algorithms.branch_bound import branch_and_bound
+from algorithms.dynamic_programming import dynamic_programming
+from algorithms.greedy import greedy
 from io_handler import get_input
 from metrics import print_result, print_metrics
 
@@ -11,6 +13,8 @@ ALGORITHMS = {
 METHODS = {
     "1": "Backtracking",
     "2": "Branch and Bound",
+    "3": "Programação Dinâmica",
+    "4": "Estratégia Gulosa",
 }
 
 
@@ -59,8 +63,12 @@ def run():
     # Passo 5: executar algoritmo selecionado
     if method_choice == "1":
         solution, metrics = backtracking(nums, target)
-    else:
+    elif method_choice == "2":
         solution, metrics = branch_and_bound(nums, target)
+    elif method_choice == "3":
+        solution, metrics = dynamic_programming(nums, target)
+    else:
+        solution, metrics = greedy(nums, target)
 
     # Passo 6: exibir resultados e métricas
     print_result(solution, nums, target)
